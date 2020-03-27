@@ -1,18 +1,24 @@
 defmodule Tictactoe do
-  @moduledoc """
-  Documentation for `Tictactoe`.
-  """
+  alias Tictactoe.Game
 
-  @doc """
-  Hello world.
+  # @moduledoc """
+  # Documentation for `Tictactoe`.
+  # """
 
-  ## Examples
+  # @doc """
+  # Hello world.
 
-      iex> Tictactoe.hello()
-      :world
+  # ## Examples
 
-  """
-  def hello do
-    :world
+  #     iex> Tictactoe.hello()
+  #     :world
+
+  # """
+  # def hello do
+  #   :world
+  # end
+
+  def start do
+    Game.init()
   end
 end
