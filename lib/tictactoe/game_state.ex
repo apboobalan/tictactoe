@@ -69,6 +69,7 @@ defmodule Tictactoe.GameState do
     false
   end
 
+  @spec replace(any, Tictactoe.Position.t(), any, boolean) :: {:error, any} | {:ok, [any]}
   def replace(row, position = %Position{}, player, true) do
     {:ok, List.replace_at(row, position.y, player)}
   end
