@@ -12,21 +12,21 @@ defmodule Tictactoe.Game do
   @spec start(any) :: none
   def start(gamestate = %GameState{}) do
     UI.print(gamestate.matrix)
-    next_turn(gamestate, false, :A)
+    next_turn(gamestate, false, :A, :B)
   end
 
-  def next_turn(gamestate = %GameState{}, false, :A) do
+  def next_turn(gamestate = %GameState{}, false, currentPlayer, nextPlayer) do
     [x, y] = UI.read_input()
-    handle_turn_result(Player.place(gamestate, %Position{x: x, y: y}, :A), :A, :B)
+    handle_turn_result(Player.place(gamestate, %Position{x: x, y: y}, currentPlayer), currentPlayer, nextPlayer)
   end
 
-  def next_turn(gamestate, false, :B) do
-    [x, y] = UI.read_input()
-    handle_turn_result(Player.place(gamestate, %Position{x: x, y: y}, :B), :B, :A)
-  end
+  # def next_turn(gamestate, false, :B) do
+  #   [x, y] = UI.read_input()
+  #   handle_turn_result(Player.place(gamestate, %Position{x: x, y: y}, :B), :B, :A)
+  # end
 
-  def next_turn(gamestate = %GameState{}, :won, player) do
-    IO.puts("Player #{player} won")
+  def next_turn(_gamestate = %GameState{}, true, _currentPlayer, nextPlayer) do
+    IO.puts("Player #{nextPlayer} won")
   end
 
   def next_turn(gamestate, true, _) do
@@ -34,13 +34,14 @@ defmodule Tictactoe.Game do
   end
 
 
-  defp handle_turn_result({:ok, gamestate} = turnResult, _currentPlayer, nextPlayer) do
+  defp handle_turn_result({:ok, gamestate} = turnResult, currentPlayer, nextPlayer) do
     UI.print(gamestate.matrix)
-    next_turn(gamestate, GameState.done?(gamestate), nextPlayer)
+    {gameDone, player} = GameState.done?(gamestate)
+    next_turn(gamestate, gameDone, nextPlayer, currentPlayer)
   end
 
-  defp handle_turn_result({:error, gamestate} = turnResult, currentPlayer, _) do
+  defp handle_turn_result({:error, gamestate} = turnResult, currentPlayer, nextPlayer) do
     IO.puts("Invalid move")
-    next_turn(gamestate, GameState.done?(gamestate), currentPlayer)
+    next_turn(gamestate, false, currentPlayer, nextPlayer)
   end
 end
