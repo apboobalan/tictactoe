@@ -4,7 +4,7 @@ defmodule GameStateTest do
   alias Tictactoe.GameState
 
   test "return false if none of the players made 3 moves" do
-    assert GameState.done?(%GameState{player1_move: 2, player2_move: 2}) == false
+    assert GameState.done?(%GameState{player1_move: 2, player2_move: 2}) == {false, nil}
   end
 
   defp test_player_win(matrix) do
@@ -14,7 +14,7 @@ defmodule GameStateTest do
       player2_move: 2
     }
 
-    assert GameState.done?(state) == :won
+    assert GameState.done?(state) == {true, :A}
   end
 
   test "player_1 win" do
@@ -32,12 +32,12 @@ defmodule GameStateTest do
 
   test "player_1 lost" do
     state = %GameState{
-      matrix: [[:A, :x, :x], [:x, :A, :x], [:x, :x, :A]],
+      matrix: [[:A, :x, :x], [:x, :A, :x], [:x, :A, :x]],
       player1_move: 3,
       player2_move: 2
     }
 
-    assert GameState.done?(state) == :won
+    assert GameState.done?(state) == {false, :A}
   end
 
   test "should return won if pattern matches" do

@@ -54,21 +54,13 @@ defmodule Tictactoe.GameState do
     end
   end
 
-  @spec done?(Tictactoe.GameState.t()) :: {false, :A | :B | nil} | {true, :A | :B}
-  def done?(%Tictactoe.GameState{player1_move: 3, player2_move: 2} = gamestate) do
-    patternResult = find_pattern_in_matrix(gamestate.matrix, :A, [])
+  def done?(%Tictactoe.GameState{} = gamestate, player) do
+    patternResult = find_pattern_in_matrix(gamestate.matrix, player, [])
     |> is_winning_pattern
-    {patternResult == :won, :A}
+    {patternResult == :won, player}
   end
 
-  def done?(%Tictactoe.GameState{player1_move: 3, player2_move: 3} = gamestate) do
-    patternResult = find_pattern_in_matrix(gamestate.matrix, :B, [])
-    |> Enum.sort()
-    |> is_winning_pattern
-    {patternResult == :won, :B}
-  end
-
-  def done?(%Tictactoe.GameState{} = _gamestate) do
+  def done?(%Tictactoe.GameState{} = _gamestate, player) do
     {false, nil}
   end
 
