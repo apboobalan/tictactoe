@@ -1,11 +1,19 @@
 defmodule Tictactoe.GameState do
+  alias Tictactoe.Position
+  @type t() :: %__MODULE__{}
+
   defstruct matrix: [[:x, :x, :x], [:x, :x, :x], [:x, :x, :x]],
             player1_move: 0,
             player2_move: 0
 
+
+  def new do
+    %__MODULE__{}
+  end
+
   # find_pattern_in_row caluse
 
-  defp find_pattern_in_row([], player, result, index) do
+  defp find_pattern_in_row([], _player, result, _index) do
     result
   end
 
@@ -24,7 +32,7 @@ defmodule Tictactoe.GameState do
 
   # find_pattern_in_matrix caluse
 
-  defp find_pattern_in_matrix([], player, pattern) do
+  defp find_pattern_in_matrix([], _, pattern) do
     pattern
   end
 
@@ -36,19 +44,18 @@ defmodule Tictactoe.GameState do
   end
 
   def is_winning_pattern(pattern) do
-    result =
-      case pattern do
-        [1, 2, 3] -> :won
-        [1, 1, 1] -> :won
-        [2, 2, 2] -> :won
-        [3, 3, 3] -> :won
-        _ -> :lost
-      end
+    case pattern do
+      [1, 2, 3] -> :won
+      [3, 2, 1] -> :won
+      [1, 1, 1] -> :won
+      [2, 2, 2] -> :won
+      [3, 3, 3] -> :won
+      _ -> :lost
+    end
   end
 
   def done?(%Tictactoe.GameState{player1_move: 3, player2_move: 2} = gamestate) do
     find_pattern_in_matrix(gamestate.matrix, :A, [])
-    |> Enum.sort()
     |> is_winning_pattern
   end
 
@@ -58,7 +65,28 @@ defmodule Tictactoe.GameState do
     |> is_winning_pattern
   end
 
-  def done?(%Tictactoe.GameState{} = gamestate) do
+  def done?(%Tictactoe.GameState{} = _gamestate) do
     false
+  end
+
+  def replace(row, position = %Position{}, player, true) do
+    {:ok, List.replace_at(row, position.y, player)}
+  end
+
+  def replace(row, _position = %Position{}, _player, false) do
+    {:error, row}
+  end
+
+  @spec update_move(Tictactoe.GameState.t(), any, :error | :ok) :: Tictactoe.GameState.t()
+  def update_move(gameState = %__MODULE__{}, :A, :ok) do
+    %__MODULE__{gameState | player1_move: gameState.player1_move + 1}
+  end
+
+  def update_move(gameState = %__MODULE__{}, :B, :ok) do
+    %__MODULE__{gameState | player2_move: gameState.player2_move + 1}
+  end
+
+  def update_move(gameState = %__MODULE__{}, _, :error) do
+    gameState
   end
 end

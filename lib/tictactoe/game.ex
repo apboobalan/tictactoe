@@ -3,7 +3,7 @@ defmodule Tictactoe.Game do
   alias Tictactoe.GameState
 
   def init() do
-    start(%GameState{})
+    start(GameState.new)
   end
 
   def start(state) do
