@@ -6,9 +6,7 @@ defmodule Tictactoe.GameState do
             player1_move: 0,
             player2_move: 0
 
-  def new do
-    %__MODULE__{}
-  end
+  def new, do: %__MODULE__{}
 
   def game_status([[X, X, X], [_, _, _], [_, _, _]]), do: X
   def game_status([[_, _, _], [X, X, X], [_, _, _]]), do: X
@@ -20,21 +18,21 @@ defmodule Tictactoe.GameState do
   def game_status([[_, _, X], [_, X, _], [X, _, _]]), do: X
   def game_status(_anythingelse), do: nil
 
-  defp has_space([], result) do
-    result
-  end
+  defp has_space([] = _matrix, result), do: result
 
-  defp has_space(matrix, result) do
-    [head | tail] = matrix
+  defp has_space([head | tail] = _matrix, result) do
     has_space(tail, result || Enum.member?(head, :x))
   end
 
   @spec done?(Tictactoe.GameState.t()) :: {false, :A | :B | nil} | {true, :A | :B | nil}
-  def done?(gamestate = %__MODULE__{}) do
-    playerWon = game_status(gamestate.matrix)
-    hasSpace = has_space(gamestate.matrix, false)
-    {playerWon == :A || playerWon == :B || !hasSpace, playerWon}
+  def done?(_gamestate = %__MODULE__{matrix: matrix}) do
+    playerWon = game_status(matrix)
+    hasSpace = has_space(matrix, false)
+    {game_ended?(playerWon, hasSpace), playerWon}
   end
+
+  def game_ended?(player_won, has_next_move),
+    do: player_won == :A || player_won == :B || !has_next_move
 
   @spec replace(any, Tictactoe.Position.t(), any, boolean) :: {:error, any} | {:ok, [any]}
   def replace(row, position = %Position{}, player, true) do
