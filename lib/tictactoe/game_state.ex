@@ -8,14 +8,14 @@ defmodule Tictactoe.GameState do
 
   def new, do: %__MODULE__{}
 
-  def game_status([[X, X, X], [_, _, _], [_, _, _]]) when X != :x, do: X
-  def game_status([[_, _, _], [X, X, X], [_, _, _]]) when X != :x, do: X
-  def game_status([[_, _, _], [_, _, _], [X, X, X]]) when X != :x, do: X
-  def game_status([[X, _, _], [X, _, _], [X, _, _]]) when X != :x, do: X
-  def game_status([[_, X, _], [_, X, _], [_, X, _]]) when X != :x, do: X
-  def game_status([[_, _, X], [_, _, X], [_, _, X]]) when X != :x, do: X
-  def game_status([[X, _, _], [_, X, _], [_, _, X]]) when X != :x, do: X
-  def game_status([[_, _, X], [_, X, _], [X, _, _]]) when X != :x, do: X
+  def game_status([[x, x, x], [_, _, _], [_, _, _]]) when x != :x, do: x
+  def game_status([[_, _, _], [x, x, x], [_, _, _]]) when x != :x, do: x
+  def game_status([[_, _, _], [_, _, _], [x, x, x]]) when x != :x, do: x
+  def game_status([[x, _, _], [x, _, _], [x, _, _]]) when x != :x, do: x
+  def game_status([[_, x, _], [_, x, _], [_, x, _]]) when x != :x, do: x
+  def game_status([[_, _, x], [_, _, x], [_, _, x]]) when x != :x, do: x
+  def game_status([[x, _, _], [_, x, _], [_, _, x]]) when x != :x, do: x
+  def game_status([[_, _, x], [_, x, _], [x, _, _]]) when x != :x, do: x
   def game_status(_anythingelse), do: nil
 
   defp has_space([] = _matrix, result), do: result
