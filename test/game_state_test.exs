@@ -13,13 +13,16 @@ defmodule GameStateTest do
     assert GameState.done?(state) == {true, :A}
   end
 
-  test "player_1 win" do
+  test "win cases " do
     Enum.each(
       [
-        [[:A, :x, :x], [:x, :A, :x], [:x, :x, :A]],
         [[:A, :x, :x], [:A, :x, :x], [:A, :x, :x]],
         [[:x, :A, :x], [:x, :A, :x], [:x, :A, :x]],
         [[:x, :x, :A], [:x, :x, :A], [:x, :x, :A]],
+        [[:A, :A, :A], [:x, :x, :x], [:x, :x, :x]],
+        [[:x, :x, :x], [:A, :A, :A], [:x, :x, :x]],
+        [[:x, :x, :x], [:x, :x, :x], [:A, :A, :A]],
+        [[:A, :x, :x], [:x, :A, :x], [:x, :x, :A]],
         [[:x, :x, :A], [:x, :A, :x], [:A, :x, :x]]
       ],
       &test_player_win/1
