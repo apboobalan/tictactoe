@@ -6,62 +6,92 @@ defmodule Tictactoe.GameState do
             player1_move: 0,
             player2_move: 0
 
-
   def new do
     %__MODULE__{}
   end
 
-  # find_pattern_in_row caluse
+  def game_status([[:A, :A, :A], [_, _, _], [_, _, _]]) do
+    :A
+  end
 
-  defp find_pattern_in_row([], _player, result, _index) do
+  def game_status([[_, _, _], [:A, :A, :A], [_, _, _]]) do
+    :A
+  end
+
+  def game_status([[_, _, _], [_, _, _], [:A, :A, :A]]) do
+    :A
+  end
+
+  def game_status([[:A, _, _], [:A, _, _], [:A, _, _]]) do
+    :A
+  end
+
+  def game_status([[_, :A, _], [_, :A, _], [_, :A, _]]) do
+    :A
+  end
+
+  def game_status([[_, _, :A], [_, _, :A], [_, _, :A]]) do
+    :A
+  end
+
+  def game_status([[:A, _, _], [_, :A, _], [_, _, :A]]) do
+    :A
+  end
+
+  def game_status([[_, _, :A], [_, :A, _], [:A, _, _]]) do
+    :A
+  end
+
+  def game_status([[:B, :B, :B], [_, _, _], [_, _, _]]) do
+    :B
+  end
+
+  def game_status([[_, _, _], [:B, :B, :B], [_, _, _]]) do
+    :B
+  end
+
+  def game_status([[_, _, _], [_, _, _], [:B, :B, :B]]) do
+    :B
+  end
+
+  def game_status([[:B, _, _], [:B, _, _], [:B, _, _]]) do
+    :B
+  end
+
+  def game_status([[_, :B, _], [_, :B, _], [_, :B, _]]) do
+    :B
+  end
+
+  def game_status([[_, _, :B], [_, _, :B], [_, _, :B]]) do
+    :B
+  end
+
+  def game_status([[:B, _, _], [_, :B, _], [_, _, :B]]) do
+    :B
+  end
+
+  def game_status([[_, _, :B], [_, :B, _], [:B, _, _]]) do
+    :B
+  end
+
+  def game_status(_anythingelse) do
+    nil
+  end
+
+  defp has_space([], result) do
     result
   end
 
-  defp find_pattern_in_row(row, player, result, index) do
-    [head | rest] = row
-
-    result =
-      if player == head do
-        List.insert_at(result, -1, index)
-      else
-        result
-      end
-
-    find_pattern_in_row(rest, player, result, index + 1)
+  defp has_space(matrix, result) do
+    [head | tail] = matrix
+    has_space(tail, result || Enum.member?(head, :x))
   end
 
-  # find_pattern_in_matrix caluse
-
-  defp find_pattern_in_matrix([], _, pattern) do
-    pattern
-  end
-
-  defp find_pattern_in_matrix(matrix, player, pattern) when is_list(pattern) do
-    [row | rest] = matrix
-    pattern_found = find_pattern_in_row(row, player, [], 1)
-    pattern = pattern ++ pattern_found
-    find_pattern_in_matrix(rest, player, pattern)
-  end
-
-  def is_winning_pattern(pattern) do
-    case pattern do
-      [1, 2, 3] -> :won
-      [3, 2, 1] -> :won
-      [1, 1, 1] -> :won
-      [2, 2, 2] -> :won
-      [3, 3, 3] -> :won
-      _ -> :lost
-    end
-  end
-
-  def done?(%Tictactoe.GameState{} = gamestate, player) do
-    patternResult = find_pattern_in_matrix(gamestate.matrix, player, [])
-    |> is_winning_pattern
-    {patternResult == :won, player}
-  end
-
-  def done?(%Tictactoe.GameState{} = _gamestate, player) do
-    {false, nil}
+  @spec done?(Tictactoe.GameState.t()) :: {false, :A | :B | nil} | {true, :A | :B | nil}
+  def done?(gamestate = %__MODULE__{}) do
+    playerWon = game_status(gamestate.matrix)
+    hasSpace = has_space(gamestate.matrix, false)
+    {playerWon == :A || playerWon == :B || !hasSpace, playerWon}
   end
 
   @spec replace(any, Tictactoe.Position.t(), any, boolean) :: {:error, any} | {:ok, [any]}

@@ -6,7 +6,7 @@ defmodule PlayerTest do
   alias Tictactoe.Position
 
   test "replace the coin in position" do
-    state = GameState.new
+    state = GameState.new()
     {result, state} = Player.place(state, %Position{x: 1, y: 2}, :A)
     actual = state.matrix |> Enum.at(1) |> Enum.at(2)
     assert actual == :A

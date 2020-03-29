@@ -18,7 +18,7 @@ defmodule Tictactoe.UI do
     IO.inspect(row)
   end
 
-  @spec read_input :: [binary]
+  @spec read_input :: [any]
   def read_input() do
     IO.gets("Input the position by Row,Column formate. Ex 1,1 or 1,2")
     |> String.replace("\n", "")
