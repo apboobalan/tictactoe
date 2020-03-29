@@ -1,58 +1,51 @@
 defmodule Tictactoe.GameState do
-  alias Tictactoe.Position
   @type t() :: %__MODULE__{}
 
-  defstruct matrix: [[:x, :x, :x], [:x, :x, :x], [:x, :x, :x]],
-            player1_move: 0,
-            player2_move: 0
+  defstruct matrix: [:x, :x, :x, :x, :x, :x, :x, :x, :x]
 
   def new, do: %__MODULE__{}
 
-  def game_status([[x, x, x], [_, _, _], [_, _, _]]) when x != :x, do: x
-  def game_status([[_, _, _], [x, x, x], [_, _, _]]) when x != :x, do: x
-  def game_status([[_, _, _], [_, _, _], [x, x, x]]) when x != :x, do: x
-  def game_status([[x, _, _], [x, _, _], [x, _, _]]) when x != :x, do: x
-  def game_status([[_, x, _], [_, x, _], [_, x, _]]) when x != :x, do: x
-  def game_status([[_, _, x], [_, _, x], [_, _, x]]) when x != :x, do: x
-  def game_status([[x, _, _], [_, x, _], [_, _, x]]) when x != :x, do: x
-  def game_status([[_, _, x], [_, x, _], [x, _, _]]) when x != :x, do: x
+  def game_status([x, x, x, _, _, _, _, _, _]) when x != :x, do: x
+  def game_status([_, _, _, x, x, x, _, _, _]) when x != :x, do: x
+  def game_status([_, _, _, _, _, _, x, x, x]) when x != :x, do: x
+  def game_status([x, _, _, x, _, _, x, _, _]) when x != :x, do: x
+  def game_status([_, x, _, _, x, _, _, x, _]) when x != :x, do: x
+  def game_status([_, _, x, _, _, x, _, _, x]) when x != :x, do: x
+  def game_status([x, _, _, _, x, _, _, _, x]) when x != :x, do: x
+  def game_status([_, _, x, _, x, _, x, _, _]) when x != :x, do: x
   def game_status(_anythingelse), do: nil
 
-  defp has_space([] = _matrix, result), do: result
-
-  defp has_space([head | tail] = _matrix, result) do
-    has_space(tail, result || Enum.member?(head, :x))
+  defp has_space(matrix) do
+    Enum.member?(matrix, :x)
   end
 
-  @spec done?(Tictactoe.GameState.t()) :: {false, :A | :B | nil} | {true, :A | :B | nil}
-  def done?(_gamestate = %__MODULE__{matrix: matrix}) do
+  def done?(%__MODULE__{matrix: matrix}) do
     playerWon = game_status(matrix)
-    hasSpace = has_space(matrix, false)
+    hasSpace = has_space(matrix)
     {game_ended?(playerWon, hasSpace), playerWon}
   end
 
   def game_ended?(player_won, has_next_move),
     do: player_won == :A || player_won == :B || !has_next_move
 
-  @spec replace(any, Tictactoe.Position.t(), any, boolean) :: {:error, any} | {:ok, [any]}
-  def replace(row, position = %Position{}, player, true) do
-    {:ok, List.replace_at(row, position.y, player)}
+
+  defp is_position_free(matrix, position) when is_integer(position) do
+    matrix |> Enum.at(position) == :x
   end
 
-  def replace(row, _position = %Position{}, _player, false) do
+  def mark_position(%__MODULE__{matrix: matrix} = gamestate, position, player) when is_integer(position) do
+    {status, matrix} =
+      replace(matrix, position, player, is_position_free(matrix, position))
+
+    {status, %__MODULE__{gamestate | matrix: matrix}}
+
+  end
+
+  def replace(row, position, player, true) when is_integer(position) do
+    {:ok, List.replace_at(row, position, player)}
+  end
+
+  def replace(row, _position, _player, false) do
     {:error, row}
-  end
-
-  @spec update_move(Tictactoe.GameState.t(), any, :error | :ok) :: Tictactoe.GameState.t()
-  def update_move(gameState = %__MODULE__{}, :A, :ok) do
-    %__MODULE__{gameState | player1_move: gameState.player1_move + 1}
-  end
-
-  def update_move(gameState = %__MODULE__{}, :B, :ok) do
-    %__MODULE__{gameState | player2_move: gameState.player2_move + 1}
-  end
-
-  def update_move(gameState = %__MODULE__{}, _, :error) do
-    gameState
   end
 end

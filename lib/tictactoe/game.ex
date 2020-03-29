@@ -1,32 +1,27 @@
 defmodule Tictactoe.Game do
   alias Tictactoe.UI
   alias Tictactoe.GameState
-  alias Tictactoe.Position
-  alias Tictactoe.Player
 
   @spec init :: :ok
   def init() do
     start(GameState.new())
   end
 
-  @spec start(Tictactoe.GameState.t()) :: :ok
   def start(gamestate = %GameState{}) do
     UI.print(gamestate.matrix)
+    IO.puts("Input the position by number strat from 1 - 9. Ex. 1, 7, 8")
     next_turn(gamestate, {false, nil}, :A)
   end
 
-  @spec next_turn(Tictactoe.GameState.t(), {false, any}, :A | :B) :: :ok
   def next_turn(gamestate = %GameState{}, {false, _}, :A) do
-    [x, y] = UI.read_input()
-
-    gamestate = Player.place(gamestate, %Position{x: x, y: y}, :A)
+    position = UI.read_input(:A) - 1
+    gamestate = GameState.mark_position(gamestate, position, :A)
     check_status(gamestate, :A, :B)
   end
 
   def next_turn(gamestate = %GameState{}, {false, _}, :B) do
-    [x, y] = UI.read_input()
-
-    gamestate = Player.place(gamestate, %Position{x: x, y: y}, :B)
+    position = UI.read_input(:B) - 1
+    gamestate = GameState.mark_position(gamestate, position, :B)
     check_status(gamestate, :B, :A)
   end
 
