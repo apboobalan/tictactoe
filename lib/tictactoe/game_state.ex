@@ -6,93 +6,33 @@ defmodule Tictactoe.GameState do
             player1_move: 0,
             player2_move: 0
 
-  def new do
-    %__MODULE__{}
-  end
+  def new, do: %__MODULE__{}
 
-  def game_status([[:A, :A, :A], [_, _, _], [_, _, _]]) do
-    :A
-  end
+  def game_status([[X, X, X], [_, _, _], [_, _, _]]) when X != :x, do: X
+  def game_status([[_, _, _], [X, X, X], [_, _, _]]) when X != :x, do: X
+  def game_status([[_, _, _], [_, _, _], [X, X, X]]) when X != :x, do: X
+  def game_status([[X, _, _], [X, _, _], [X, _, _]]) when X != :x, do: X
+  def game_status([[_, X, _], [_, X, _], [_, X, _]]) when X != :x, do: X
+  def game_status([[_, _, X], [_, _, X], [_, _, X]]) when X != :x, do: X
+  def game_status([[X, _, _], [_, X, _], [_, _, X]]) when X != :x, do: X
+  def game_status([[_, _, X], [_, X, _], [X, _, _]]) when X != :x, do: X
+  def game_status(_anythingelse), do: nil
 
-  def game_status([[_, _, _], [:A, :A, :A], [_, _, _]]) do
-    :A
-  end
+  defp has_space([] = _matrix, result), do: result
 
-  def game_status([[_, _, _], [_, _, _], [:A, :A, :A]]) do
-    :A
-  end
-
-  def game_status([[:A, _, _], [:A, _, _], [:A, _, _]]) do
-    :A
-  end
-
-  def game_status([[_, :A, _], [_, :A, _], [_, :A, _]]) do
-    :A
-  end
-
-  def game_status([[_, _, :A], [_, _, :A], [_, _, :A]]) do
-    :A
-  end
-
-  def game_status([[:A, _, _], [_, :A, _], [_, _, :A]]) do
-    :A
-  end
-
-  def game_status([[_, _, :A], [_, :A, _], [:A, _, _]]) do
-    :A
-  end
-
-  def game_status([[:B, :B, :B], [_, _, _], [_, _, _]]) do
-    :B
-  end
-
-  def game_status([[_, _, _], [:B, :B, :B], [_, _, _]]) do
-    :B
-  end
-
-  def game_status([[_, _, _], [_, _, _], [:B, :B, :B]]) do
-    :B
-  end
-
-  def game_status([[:B, _, _], [:B, _, _], [:B, _, _]]) do
-    :B
-  end
-
-  def game_status([[_, :B, _], [_, :B, _], [_, :B, _]]) do
-    :B
-  end
-
-  def game_status([[_, _, :B], [_, _, :B], [_, _, :B]]) do
-    :B
-  end
-
-  def game_status([[:B, _, _], [_, :B, _], [_, _, :B]]) do
-    :B
-  end
-
-  def game_status([[_, _, :B], [_, :B, _], [:B, _, _]]) do
-    :B
-  end
-
-  def game_status(_anythingelse) do
-    nil
-  end
-
-  defp has_space([], result) do
-    result
-  end
-
-  defp has_space(matrix, result) do
-    [head | tail] = matrix
+  defp has_space([head | tail] = _matrix, result) do
     has_space(tail, result || Enum.member?(head, :x))
   end
 
   @spec done?(Tictactoe.GameState.t()) :: {false, :A | :B | nil} | {true, :A | :B | nil}
-  def done?(gamestate = %__MODULE__{}) do
-    playerWon = game_status(gamestate.matrix)
-    hasSpace = has_space(gamestate.matrix, false)
-    {playerWon == :A || playerWon == :B || !hasSpace, playerWon}
+  def done?(_gamestate = %__MODULE__{matrix: matrix}) do
+    playerWon = game_status(matrix)
+    hasSpace = has_space(matrix, false)
+    {game_ended?(playerWon, hasSpace), playerWon}
   end
+
+  def game_ended?(player_won, has_next_move),
+    do: player_won == :A || player_won == :B || !has_next_move
 
   @spec replace(any, Tictactoe.Position.t(), any, boolean) :: {:error, any} | {:ok, [any]}
   def replace(row, position = %Position{}, player, true) do
