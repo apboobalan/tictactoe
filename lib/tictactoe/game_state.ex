@@ -1,7 +1,7 @@
 defmodule Tictactoe.GameState do
   @type t() :: %__MODULE__{}
 
-  defstruct matrix: [:x, :x, :x, :x, :x, :x, :x, :x, :x]
+  defstruct matrix: [:x, :x, :x, :x, :x, :x, :x, :x, :x], player: :A
 
   def new, do: %__MODULE__{}
 
@@ -33,7 +33,7 @@ defmodule Tictactoe.GameState do
     matrix |> Enum.at(position) == :x
   end
 
-  def mark_position(%__MODULE__{matrix: matrix} = gamestate, position, player) when is_integer(position) do
+  def mark_position(%__MODULE__{matrix: matrix, player: player} = gamestate, position) when is_integer(position) do
     {status, matrix} =
       replace(matrix, position, player, is_position_free(matrix, position))
 
