@@ -1,4 +1,5 @@
 defmodule Tictactoe.GameState do
+  use Agent
   @type t() :: %__MODULE__{}
 
   defstruct matrix: [:x, :x, :x, :x, :x, :x, :x, :x, :x], player: :A
@@ -20,6 +21,7 @@ defmodule Tictactoe.GameState do
   end
 
   def done?(%__MODULE__{matrix: matrix}) do
+    IO.inspect(self())
     playerWon = game_status(matrix)
     hasSpace = has_space(matrix)
     {game_ended?(playerWon, hasSpace), playerWon}
@@ -28,17 +30,23 @@ defmodule Tictactoe.GameState do
   def game_ended?(player_won, has_next_move),
     do: player_won == :A || player_won == :B || !has_next_move
 
-
   defp is_position_free(matrix, position) when is_integer(position) do
     matrix |> Enum.at(position) == :x
   end
 
-  def mark_position(%__MODULE__{matrix: matrix, player: player} = gamestate, position) when is_integer(position) do
+  def mark_position(agent, position) when is_integer(position) do
+    gamestate = Agent.get(agent, & &1)
+
     {status, matrix} =
-      replace(matrix, position, player, is_position_free(matrix, position))
+      replace(
+        gamestate.matrix,
+        position,
+        gamestate.player,
+        is_position_free(gamestate.matrix, position)
+      )
 
-    {status, %__MODULE__{gamestate | matrix: matrix}}
-
+    Agent.update(agent, fn gamestate -> %__MODULE__{gamestate | matrix: matrix} end)
+    status
   end
 
   def replace(row, position, player, true) when is_integer(position) do
