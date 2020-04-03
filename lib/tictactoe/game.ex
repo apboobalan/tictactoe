@@ -1,57 +1,32 @@
 defmodule Tictactoe.Game do
   use Agent
-  alias Tictactoe.UI
   alias Tictactoe.GameState
 
-  @spec init :: pid
-  def init() do
-    # agent = IO.gets("Enter Game name")
-    # |> String.replace("\n", "")
-    # |> String.to_atom
-    {:ok, agent} = Agent.start_link(fn -> GameState.new() end)
-    # IO.inspect pid
-    start(agent)
+  @spec start(atom | {:global, any} | {:via, atom, any}) :: {:error, any} | {:ok, pid}
+  def start(gamename) do
+    Agent.start(fn -> GameState.new() end, name: gamename)
   end
 
   defp next_player(:A), do: :B
 
   defp next_player(:B), do: :A
 
-
-  def start(agent) do
-    # IO.inspect self()
-    matrix = Agent.get(agent, fn state -> state.matrix end )
-    UI.print(matrix)
-    IO.puts("Input the position by number strat from 1 - 9. Ex. 1, 7, 8")
-    next_turn(agent, {false, nil})
+  @spec next_turn(atom | pid | {atom, any} | {:via, atom, any}, integer) ::
+          {false, any} | {true, any}
+  def next_turn(gamename, position) do
+    GameState.mark_position(gamename, position)
+    game_status = GameState.done?(get_state(gamename))
+    Agent.update(gamename, fn gamestate -> %GameState{gamestate | player: next_player(gamestate.player)} end)
+    game_status
   end
 
-  def next_turn(agent, {false, _}) do
-    # IO.inspect(self())
-    gamestate = Agent.get(agent, fn state -> state end)
-    position = UI.read_input(gamestate.player) - 1
-    status = GameState.mark_position(agent, position)
-    check_status(status, agent)
+  @spec get_state(atom | pid | {atom, any} | {:via, atom, any}) :: any
+  def get_state (gamename) do
+    Agent.get(gamename, & &1)
   end
 
-  def next_turn(_agent, {true, nil}) do
-    IO.puts("Game Tie")
-  end
-
-  def next_turn(_agent, {true, player}) do
-    IO.puts("Player #{player} won")
-  end
-
-  defp check_status(:ok, agent) do
-    gamestate = Agent.get(agent, & &1)
-    UI.print(gamestate.matrix)
-    game_status = GameState.done?(gamestate)
-    Agent.update(agent, fn gamestate -> %GameState{gamestate | player: next_player(gamestate.player)} end);
-    next_turn(agent, game_status)
-  end
-
-  defp check_status(:error, agent) do
-    IO.puts("Invalid move")
-    next_turn(agent, {false, nil})
+  @spec kill_game(atom | pid | {atom, any} | {:via, atom, any}) :: :ok
+  def kill_game(gamename) do
+    Agent.stop(gamename, :normal)
   end
 end

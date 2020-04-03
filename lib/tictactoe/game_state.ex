@@ -21,7 +21,6 @@ defmodule Tictactoe.GameState do
   end
 
   def done?(%__MODULE__{matrix: matrix}) do
-    IO.inspect(self())
     playerWon = game_status(matrix)
     hasSpace = has_space(matrix)
     {game_ended?(playerWon, hasSpace), playerWon}
