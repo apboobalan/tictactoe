@@ -2,7 +2,7 @@ defmodule Tictactoe.GameState do
   use Agent
   @type t() :: %__MODULE__{}
 
-  defstruct matrix: [:x, :x, :x, :x, :x, :x, :x, :x, :x], player: :A
+  defstruct matrix: [:x, :x, :x, :x, :x, :x, :x, :x, :x], player: :A, player_count: 0
 
   def new, do: %__MODULE__{}
 
