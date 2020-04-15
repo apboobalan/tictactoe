@@ -1,28 +1,28 @@
 defmodule Tictactoe.UI do
-  @spec print([maybe_improper_list]) :: :ok
+  
   def print([] = _matrix) do
     IO.puts("Printing Done")
   end
 
+  defp transform(x, position) when x == :x, do: position
+
+  defp transform(x, position), do: x
+
   def print(matrix) when is_list(matrix) do
-    [current_row | rest] = matrix
-    print_row(current_row)
-    print(rest)
+    for i <- [0, 1, 2] do
+      for j <- [0, 1, 2] do
+        matrix |> Enum.at(i * 3 + j) |> transform(i * 3 + j + 1) |> IO.write
+        IO.write "  "
+      end
+      IO.puts ""
+    end
+    
   end
 
-  defp print_row([] = _row) do
-    IO.puts("End of Print row")
-  end
-
-  defp print_row(row) when is_list(row) do
-    IO.inspect(row)
-  end
-
-  @spec read_input :: [any]
-  def read_input() do
-    IO.gets("Input the position by Row,Column formate. Ex 1,1 or 1,2")
+  
+  def read_input(player) do
+    IO.gets("Player #{player} Turn")
     |> String.replace("\n", "")
-    |> String.split(",")
-    |> Enum.map(&String.to_integer/1)
+    |> String.to_integer
   end
 end

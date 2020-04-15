@@ -1,51 +1,60 @@
 defmodule Tictactoe.Game do
-  alias Tictactoe.UI
+  use Agent
   alias Tictactoe.GameState
-  alias Tictactoe.Position
-  alias Tictactoe.Player
 
-  @spec init :: :ok
-  def init() do
-    start(GameState.new())
+  @spec start(atom | {:global, any} | {:via, atom, any}) :: {:error, any} | {:ok, pid}
+  def start(gamename) do
+    Agent.start(fn -> GameState.new() end, name: gamename)
   end
 
-  @spec start(Tictactoe.GameState.t()) :: :ok
-  def start(gamestate = %GameState{}) do
-    UI.print(gamestate.matrix)
-    next_turn(gamestate, {false, nil}, :A)
+  def add_player(gamename) do
+    gamestate = get_state(gamename)
+    add_player_internal(gamestate, gamename)
   end
 
-  @spec next_turn(Tictactoe.GameState.t(), {false, any}, :A | :B) :: :ok
-  def next_turn(gamestate = %GameState{}, {false, _}, :A) do
-    [x, y] = UI.read_input()
-
-    gamestate = Player.place(gamestate, %Position{x: x, y: y}, :A)
-    check_status(gamestate, :A, :B)
+  defp add_player_internal(%GameState{player_count: 2}, _gamename) do
+    :error
   end
 
-  def next_turn(gamestate = %GameState{}, {false, _}, :B) do
-    [x, y] = UI.read_input()
-
-    gamestate = Player.place(gamestate, %Position{x: x, y: y}, :B)
-    check_status(gamestate, :B, :A)
+  defp add_player_internal(%GameState{player_count: player}, gamename) when player < 2 do
+    Agent.update(gamename, fn state -> %{state | player_count: state.player_count + 1} end )
+    :ok
   end
 
-  def next_turn(_gamestate = %GameState{}, {true, nil}, _) do
-    IO.puts("Game Tie")
+
+  defp next_player(:A), do: :B
+
+  defp next_player(:B), do: :A
+
+  @spec next_turn(atom | pid | {atom, any} | {:via, atom, any}, integer) ::
+          {false, any} | {true, any}
+  def next_turn(gamename, position) do
+    GameState.mark_position(gamename, position)
+    game_status = GameState.done?(get_state(gamename))
+    Agent.update(gamename, fn gamestate -> %GameState{gamestate | player: next_player(gamestate.player)} end)
+    game_status
   end
 
-  def next_turn(_gamestate = %GameState{}, {true, player}, _) do
-    IO.puts("Player #{player} won")
+  @spec get_state(atom | pid | {atom, any} | {:via, atom, any}) :: any
+  def get_state (gamename) do
+    Agent.get(gamename, & &1)
   end
 
-  defp check_status({:ok, gamestate}, _currentPlayer, nextPlayer) do
-    UI.print(gamestate.matrix)
-    gameStatus = GameState.done?(gamestate)
-    next_turn(gamestate, gameStatus, nextPlayer)
+  def is_game_alive? (gamename) do
+    Process.whereis(gamename) != nil
   end
 
-  defp check_status({:error, gamestate}, currentPlayer, _nextPlayer) do
-    IO.puts("Invalid move")
-    next_turn(gamestate, {false, nil}, currentPlayer)
+  @spec kill_game(atom | pid | {atom, any} | {:via, atom, any}) :: :ok
+  def kill_game(gamename) do
+    kill_agent(gamename, is_game_alive?(gamename))
   end
+
+  defp kill_agent(name, true) do
+    Agent.stop(name, :kill)
+  end
+
+  defp kill_agent(_name, false) do
+    :error
+  end
+
 end
